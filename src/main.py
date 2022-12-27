@@ -156,7 +156,8 @@ def main():
 
             image[i, j] = np.clip(color, 0, 1)
 
-    plt.imsave(f'{OUTPUT_DIR}/image.png', image)
+    filename = f"{width}x{height}_depth_{max_depth}.png"
+    plt.imsave(f'{OUTPUT_DIR}/{filename}', image)
 
 
 if __name__ == "__main__":
