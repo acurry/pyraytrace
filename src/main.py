@@ -1,11 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scene import Scene
+
 OUTPUT_DIR = './output'
-
-width = 1024
-height = 768
-
 
 def normalize(vector: np.ndarray):
     return vector / np.linalg.norm(vector)
@@ -42,14 +40,13 @@ def nearest_intersected_object(objects, ray_origin, ray_direction):
 
 
 def main():
-    camera = np.array([0, 0, 1])
-    ratio = float(width) / height
-    screen = {
-        'LEFT': -1,
-        'TOP': 1 / ratio,
-        'RIGHT': 1,
-        'BOTTOM': -1 / ratio,
-    }
+    s = Scene.init_from_file("./src/scene_sample1.yaml")
+
+    camera = np.array([
+        s.camera_x,
+        s.camera_y,
+        s.camera_z
+    ])
 
     objects = [{
         'center': np.array([-0.2, 0, -1]),
@@ -92,13 +89,9 @@ def main():
         'specular': np.array([1, 1, 1])
     }
 
-    max_depth = 3
-
-    image = np.zeros((height, width, 3))
-    for i, y in enumerate(np.linspace(screen['TOP'], screen['BOTTOM'],
-                                      height)):
-        for j, x in enumerate(
-                np.linspace(screen['LEFT'], screen['RIGHT'], width)):
+    image = np.zeros((s.height, s.width, 3))
+    for i, y in enumerate(np.linspace(s.screen_top, s.screen_bottom, s.height)):
+        for j, x in enumerate(np.linspace(s.screen_left, s.screen_right, s.width)):
             # screen is on origin
             pixel = np.array([x, y, 0])
             origin = camera
@@ -107,7 +100,7 @@ def main():
             color = np.zeros((3))
             reflection = 1
 
-            for k in range(max_depth):
+            for k in range(s.max_depth):
                 # check for intersections
                 nearest_object, min_distance = nearest_intersected_object(
                     objects, origin, direction)
@@ -156,7 +149,7 @@ def main():
 
             image[i, j] = np.clip(color, 0, 1)
 
-    filename = f"{width}x{height}_depth_{max_depth}.png"
+    filename = f"{s.width}x{s.height}_depth_{s.max_depth}.png"
     plt.imsave(f'{OUTPUT_DIR}/{filename}', image)
 
 

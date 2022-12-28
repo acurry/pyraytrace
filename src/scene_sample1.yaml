@@ -2,7 +2,7 @@ scene:
   width: 1024
   height: 768
   max_depth: 3
-  camera_x: 0.5
-  camera_y: 0.5
+  camera_x: 0.0
+  camera_y: 0.0
   camera_z: 1.0
   
