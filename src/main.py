@@ -90,7 +90,7 @@ def main():
                 # specular
                 intersection_to_camera = normalize(camera - intersection)
                 H = normalize(intersection_to_light + intersection_to_camera)
-                illumination += nearest_object.specular * SCENE.light.specular * np.dot(normal_to_surface, H)**(nearest_object.shininess / 4)
+                illumination += nearest_object.specular * SCENE.light.specular * np.dot(normal_to_surface, H)**(float(nearest_object.shininess) / 4.0)
 
                 # reflection
                 color += reflection * illumination
