@@ -3,19 +3,27 @@ from yaml import safe_load
 
 @dataclass
 class Scene:
-    width: int = 1024
-    height: int = 768
-    max_depth: int = 3
-    ratio: float = float(width) / height
+    width: int
+    height: int
+    max_depth: int
+    ratio: float
+    camera: list[int] = field(default_factory=list)
+    screen: dict = field(default_factory=dict)
 
-    screen_left: float = -1
-    screen_top: float = 1 / ratio
-    screen_right: float = 1
-    screen_bottom: float = -1 / ratio
+    def __init__(self, width: float, height: float, max_depth: int, camera: list[float]):
+        self.width = width
+        self.height = height
+        self.max_depth = max_depth
+        self.camera = camera
 
-    camera_x: float = 0.0
-    camera_y: float = 0.0
-    camera_z: float = 1.0
+        self.ratio = float(width) / height
+        
+        self.screen = {
+            'left': -1,
+            'top': 1 / self.ratio,
+            'right': 1,
+            'bottom': -1  / self.ratio,
+        }
 
     @staticmethod
     def init_from_file(filename: str):

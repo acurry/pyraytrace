@@ -42,11 +42,7 @@ def nearest_intersected_object(objects, ray_origin, ray_direction):
 def main():
     s = Scene.init_from_file("./src/scene_sample1.yaml")
 
-    camera = np.array([
-        s.camera_x,
-        s.camera_y,
-        s.camera_z
-    ])
+    camera = np.array(s.camera)
 
     objects = [{
         'center': np.array([-0.2, 0, -1]),
@@ -90,8 +86,8 @@ def main():
     }
 
     image = np.zeros((s.height, s.width, 3))
-    for i, y in enumerate(np.linspace(s.screen_top, s.screen_bottom, s.height)):
-        for j, x in enumerate(np.linspace(s.screen_left, s.screen_right, s.width)):
+    for i, y in enumerate(np.linspace(s.screen['top'], s.screen['bottom'], s.height)):
+        for j, x in enumerate(np.linspace(s.screen['left'], s.screen['right'], s.width)):
             # screen is on origin
             pixel = np.array([x, y, 0])
             origin = camera
