@@ -1,6 +1,39 @@
 scene:
   width: 1024
   height: 768
-  max_depth: 3
+  max_depth: 6
   camera: [0.0, 0.0, 1.0]
-  
+  shapes:
+    - center: [-0.2, 0, -1]
+      radius: 0.7
+      ambient: [0.1, 0, 0]
+      diffuse: [0.7, 0, 0]
+      specular: [1, 1, 1]
+      shininess: 100
+      reflection: 0.5
+    - center: [-0.1, -0.3, 0]
+      radius: 0.1
+      ambient: [0.1, 0, 0.1]
+      diffuse: [0.7, 0, 0.7]
+      specular: [1, 1, 1]
+      shininess: 100
+      reflection: 0.5
+    - center: [-0.3, 0, 0]
+      radius: 0.15
+      ambient: [0, 0.1, 0]
+      diffuse: [0, 0.6, 0]
+      specular: [1, 1, 1]
+      shininess: 100
+      reflection: 0.5
+    - center: [0, -9000, 0]
+      radius: 8999.3
+      ambient: [0.1, 0.1, 0.1]
+      diffuse: [0.6, 0.6, 0.6]
+      specular: [1, 1, 1]
+      shininess: 100
+      reflection: 0.5
+  light:
+    position: [5, 5, 5]
+    ambient: [1, 1, 1]
+    diffuse: [1, 1, 1]
+    specular: [1, 1, 1]

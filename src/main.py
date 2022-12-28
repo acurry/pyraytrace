@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scene import Scene
+from scene import Scene, Shape
 
 OUTPUT_DIR = './output'
 
@@ -25,69 +25,28 @@ def sphere_intersect(center, radius, ray_origin, ray_direction):
     return None
 
 
-def nearest_intersected_object(objects, ray_origin, ray_direction):
+def nearest_intersected_object(shapes: list[Shape], ray_origin, ray_direction):
     distances = [
-        sphere_intersect(obj['center'], obj['radius'], ray_origin,
-                         ray_direction) for obj in objects
+        sphere_intersect(obj.center, obj.radius, ray_origin,
+                         ray_direction) for obj in shapes
     ]
     nearest_object = None
     min_distance = np.inf
     for index, distance in enumerate(distances):
         if distance and distance < min_distance:
             min_distance = distance
-            nearest_object = objects[index]
+            nearest_object = shapes[index]
     return nearest_object, min_distance
 
 
 def main():
-    s = Scene.init_from_file("./src/scene_sample1.yaml")
+    SCENE = Scene.init_from_file("./src/scene_sample1.yaml")
 
-    camera = np.array(s.camera)
+    camera = np.array(SCENE.camera)
 
-    objects = [{
-        'center': np.array([-0.2, 0, -1]),
-        'radius': 0.7,
-        'ambient': np.array([0.1, 0, 0]),
-        'diffuse': np.array([0.7, 0, 0]),
-        'specular': np.array([1, 1, 1]),
-        'shininess': 100,
-        'reflection': 0.5
-    }, {
-        'center': np.array([0.1, -0.3, 0]),
-        'radius': 0.1,
-        'ambient': np.array([0.1, 0, 0.1]),
-        'diffuse': np.array([0.7, 0, 0.7]),
-        'specular': np.array([1, 1, 1]),
-        'shininess': 100,
-        'reflection': 0.5
-    }, {
-        'center': np.array([-0.3, 0, 0]),
-        'radius': 0.15,
-        'ambient': np.array([0, 0.1, 0]),
-        'diffuse': np.array([0, 0.6, 0]),
-        'specular': np.array([1, 1, 1]),
-        'shininess': 100,
-        'reflection': 0.5
-    }, {
-        'center': np.array([0, -9000, 0]),
-        'radius': 9000 - 0.7,
-        'ambient': np.array([0.1, 0.1, 0.1]),
-        'diffuse': np.array([0.6, 0.6, 0.6]),
-        'specular': np.array([1, 1, 1]),
-        'shininess': 100,
-        'reflection': 0.5
-    }]
-
-    light = {
-        'position': np.array([5, 5, 5]),
-        'ambient': np.array([1, 1, 1]),
-        'diffuse': np.array([1, 1, 1]),
-        'specular': np.array([1, 1, 1])
-    }
-
-    image = np.zeros((s.height, s.width, 3))
-    for i, y in enumerate(np.linspace(s.screen['top'], s.screen['bottom'], s.height)):
-        for j, x in enumerate(np.linspace(s.screen['left'], s.screen['right'], s.width)):
+    image = np.zeros((SCENE.height, SCENE.width, 3))
+    for i, y in enumerate(np.linspace(SCENE.screen['top'], SCENE.screen['bottom'], SCENE.height)):
+        for j, x in enumerate(np.linspace(SCENE.screen['left'], SCENE.screen['right'], SCENE.width)):
             # screen is on origin
             pixel = np.array([x, y, 0])
             origin = camera
@@ -96,24 +55,24 @@ def main():
             color = np.zeros((3))
             reflection = 1
 
-            for k in range(s.max_depth):
+            for k in range(SCENE.max_depth):
                 # check for intersections
                 nearest_object, min_distance = nearest_intersected_object(
-                    objects, origin, direction)
+                    SCENE.shapes, origin, direction)
                 if nearest_object is None:
                     break
 
                 intersection = origin + min_distance * direction
                 normal_to_surface = normalize(intersection -
-                                              nearest_object['center'])
+                                              nearest_object.center)
                 shifted_point = intersection + 1e-5 * normal_to_surface
-                intersection_to_light = normalize(light['position'] -
+                intersection_to_light = normalize(SCENE.light.position -
                                                   shifted_point)
 
                 _, min_distance = nearest_intersected_object(
-                    objects, shifted_point, intersection_to_light)
+                    SCENE.shapes, shifted_point, intersection_to_light)
                 intersection_to_light_distance = np.linalg.norm(
-                    light['position'] - intersection)
+                    SCENE.light.position - intersection)
                 is_shadowed = min_distance < intersection_to_light_distance
 
                 if is_shadowed:
@@ -122,30 +81,27 @@ def main():
                 illumination = np.zeros((3))
 
                 # ambiant
-                illumination += nearest_object['ambient'] * light['ambient']
+                illumination += nearest_object.ambient * SCENE.light.ambient
 
                 # diffuse
-                illumination += nearest_object[
-                    'diffuse'] * light['diffuse'] * np.dot(
+                illumination += nearest_object.diffuse * SCENE.light.diffuse * np.dot(
                         intersection_to_light, normal_to_surface)
 
                 # specular
                 intersection_to_camera = normalize(camera - intersection)
                 H = normalize(intersection_to_light + intersection_to_camera)
-                illumination += nearest_object['specular'] * light[
-                    'specular'] * np.dot(normal_to_surface,
-                                         H)**(nearest_object['shininess'] / 4)
+                illumination += nearest_object.specular * SCENE.light.specular * np.dot(normal_to_surface, H)**(nearest_object.shininess / 4)
 
                 # reflection
                 color += reflection * illumination
-                reflection *= nearest_object['reflection']
+                reflection *= nearest_object.reflection
 
                 origin = shifted_point
                 direction = reflected(direction, normal_to_surface)
 
             image[i, j] = np.clip(color, 0, 1)
 
-    filename = f"{s.width}x{s.height}_depth_{s.max_depth}.png"
+    filename = f"{SCENE.width}x{SCENE.height}_depth_{SCENE.max_depth}_shapes_{len(SCENE.shapes)}.png"
     plt.imsave(f'{OUTPUT_DIR}/{filename}', image)
 
 
