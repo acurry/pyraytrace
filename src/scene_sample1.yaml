@@ -11,6 +11,7 @@ scene:
       specular: [1, 1, 1]
       shininess: 100
       reflection: 0.01
+      type: sphere
     - center: [-0.1, -0.3, 0]
       radius: 0.1
       ambient: [0.1, 0, 0.1]
@@ -18,6 +19,7 @@ scene:
       specular: [1, 1, 1]
       shininess: 100
       reflection: 0.5
+      type: sphere
     - center: [-0.3, 0, 0]
       radius: 0.15
       ambient: [0, 0.1, 0]
@@ -25,6 +27,7 @@ scene:
       specular: [1, 1, 1]
       shininess: 100
       reflection: 0.5
+      type: sphere
     - center: [0, -9000, 0]
       radius: 8999.3
       ambient: [0.1, 0.1, 0.1]
@@ -32,6 +35,7 @@ scene:
       specular: [1, 1, 1]
       shininess: 100
       reflection: 0.5
+      type: sphere
   light:
     position: [5, 5, 5]
     ambient: [1, 1, 1]

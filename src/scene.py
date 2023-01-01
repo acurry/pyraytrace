@@ -4,6 +4,7 @@ import numpy as np
 
 @dataclass
 class Shape:
+    type: str
     radius: float
     shininess: int
     reflection: float
@@ -17,6 +18,23 @@ class Shape:
         self.ambient = np.array(self.ambient)
         self.diffuse = np.array(self.diffuse)
         self.specular = np.array(self.specular)
+    
+    def check_intersect(self, 
+        ray_origin: np.ndarray, 
+        ray_direction: np.ndarray
+    ):
+        intersect = None
+        if self.type == 'sphere':
+            b = 2 * np.dot(ray_direction, ray_origin - self.center)
+            c = np.linalg.norm(ray_origin - self.center)**2 - self.radius**2
+            delta = b**2 - 4 * c
+            if delta > 0:
+                t1 = (-b + np.sqrt(delta)) / 2
+                t2 = (-b - np.sqrt(delta)) / 2
+                if t1 > 0 and t2 > 0:
+                    intersect = min(t1, t2)
+
+        return intersect
 
 @dataclass
 class Light:
